@@ -21,9 +21,23 @@ try {
   cases.push('packed-source-entry-points-and-notices');
   const client = join(temp, 'consumer');
   mkdirSync(join(client, 'assembly'), { recursive: true });
-  writeFileSync(join(client, 'package.json'), JSON.stringify({ name: 'sdk-consumer-test', private: true, version: '1.0.0', type: 'module' }));
+  const consumer = { name: 'sdk-consumer-test', private: true, version: '1.0.0', type: 'module',
+    dependencies: { '@centillex/proxy-wasm-sdk': 'file:' + path, assemblyscript: '0.27.32' } };
+  writeFileSync(join(client, 'package.json'), JSON.stringify(consumer));
+  // npm ci populates archive cache, not necessarily registry metadata. Build an
+  // explicit consumer lock from the reviewed compiler lock plus this tarball's
+  // integrity instead of depending on a previously warmed registry packument.
+  const locked = JSON.parse(readFileSync(join(root, 'package-lock.json'))).packages;
+  delete locked[''];
+  for (const entry of Object.values(locked)) delete entry.dev;
+  locked[''] = { name: consumer.name, version: consumer.version, dependencies: consumer.dependencies };
+  locked['node_modules/@centillex/proxy-wasm-sdk'] = { version: manifest.version,
+    resolved: 'file:' + path, integrity: metadata.integrity, license: manifest.license,
+    peerDependencies: manifest.peerDependencies, engines: manifest.engines };
+  writeFileSync(join(client, 'package-lock.json'), JSON.stringify({ name: consumer.name,
+    version: consumer.version, lockfileVersion: 3, requires: true, packages: locked }));
   // No link to this repository's node_modules and no lifecycle scripts/network.
-  run('npm', ['install', '--offline', '--ignore-scripts', '--strict-peer-deps', '--no-audit', '--no-fund', '--save-exact', path, 'assemblyscript@0.27.32'], client);
+  run('npm', ['ci', '--offline', '--ignore-scripts', '--strict-peer-deps', '--no-audit', '--no-fund'], client);
   const installed = JSON.parse(readFileSync(join(client, 'node_modules/@centillex/proxy-wasm-sdk/package.json')));
   assert.equal(installed.version, manifest.version);
   cases.push('fresh-offline-tarball-consumer');
