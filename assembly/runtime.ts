@@ -874,7 +874,8 @@ export class RootContext extends BaseContext {
   onConfigure(configuration_size: u32): bool {
     log(LogLevelValues.debug, "context id: " + this.context_id.toString() + ": onConfigure(configuration_size: " + configuration_size.toString() + ")");
     if (configuration_size == 0) {
-      // No config
+      // Centillex: an empty reconfiguration clears the previous value.
+      this.configuration_ = "";
       return true
     }
     CHECK_RESULT(imports.proxy_get_buffer_bytes(BufferTypeValues.PluginConfiguration, 0, configuration_size, globalArrayBufferReference.bufferPtr(), globalArrayBufferReference.sizePtr()));
@@ -1085,17 +1086,30 @@ export function ensureContext(context_id: u32, root_context_id: u32): void {
 }
 
 export function getBaseContext(context_id: u32): BaseContext {
+  // Centillex: root done/delete callbacks are not stream-map lookups.
+  const current = root_context;
+  if (current != null && current.context_id == context_id) {
+    return current;
+  }
   return context_map.get(context_id) as BaseContext;
 }
 export function getContext(context_id: u32): Context {
   return context_map.get(context_id) as Context;
 }
 export function getRootContext(context_id: u32): RootContext {
+  // The upstream single-root model is retained. ngx_wasm_module also uses a
+  // shared bootstrap VM during initialization, even with filter isolation.
+  // Concurrent/shared multi-root execution is not qualified by this SDK.
   return root_context as RootContext;
 }
 
 export function deleteContext(context_id: u32): void {
-  context_map.delete(context_id);
+  const current = root_context;
+  if (current != null && current.context_id == context_id) {
+    root_context = null;
+  } else {
+    context_map.delete(context_id);
+  }
 }
 
 /**

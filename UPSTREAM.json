@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/Kong/proxy-wasm-assemblyscript-sdk",
+  "tag": "v0.0.6",
+  "tagObject": "c583579bd57cd303b0fa3870275afccbd43f7e6b",
+  "commit": "a1b7648399f18e709507bc07c59d0d34f08f39cb",
+  "npmPackage": "@kong/proxy-wasm-sdk",
+  "npmVersion": "0.0.6",
+  "originalRepository": "https://github.com/solo-io/proxy-runtime",
+  "proxyWasmABI": "0.2.1",
+  "assemblyscript": "0.27.32",
+  "runtime": "incremental"
+}

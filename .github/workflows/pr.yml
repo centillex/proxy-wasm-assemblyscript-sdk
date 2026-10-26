@@ -1,22 +1,32 @@
-name: check-pr
+name: Packed SDK tests
 on:
   push:
-    branches:
-    - 'master'
-  pull_request: {}
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
-  check-pr:
-    name: check-pr
-    runs-on: ubuntu-latest
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2.1.0
-    - name: Set up Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16.17.0
-    - run: npm install
-    - run: npm run asbuild
-    # make sure example filter builds:
-    - run: cd examples/auth && npm install && npm run asbuild
-    - run: cd examples/addheader && npm install && npm run asbuild
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: packed-sdk-component-tests
+          path: |
+            build/*.tgz
+            build/package-tests.json
+          retention-days: 14
+          if-no-files-found: error
+      - name: Qualification boundary
+        run: echo 'Component CI does not replace the explicit native H1/H2/H3/WebSocket release gate. No automatic npm publication.' >> "$GITHUB_STEP_SUMMARY"

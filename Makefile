@@ -1,8 +1,11 @@
-build:
-	npm run asbuild
+.PHONY: test native monitor
 
-publish:
-	npm publish
+test:
+	npm ci --ignore-scripts
+	npm test
 
-docs:
-	npm run docs
+native:
+	npm run test:native
+
+monitor:
+	npm run monitor

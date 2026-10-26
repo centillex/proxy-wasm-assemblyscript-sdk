@@ -1,0 +1,12 @@
+Centillex Proxy-Wasm AssemblyScript SDK
+
+Derived from Kong/proxy-wasm-assemblyscript-sdk v0.0.6,
+commit a1b7648399f18e709507bc07c59d0d34f08f39cb, itself a fork of
+solo-io/proxy-runtime. Original author: Yuval Kohavi.
+
+Original copyright and license notices remain applicable. LICENSE.txt is
+retained unchanged from the pinned Kong release (Apache License 2.0).
+
+Centillex maintains the downstream package entry points, tooling, tests and
+compatibility documentation. Downstream changes are recorded in CHANGELOG.md.
+This fork is not endorsed by Kong or Solo.io.

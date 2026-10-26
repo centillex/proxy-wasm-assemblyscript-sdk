@@ -1,0 +1,11 @@
+{
+  "repositories": [
+    {"repo": "Kong/proxy-wasm-assemblyscript-sdk", "commit": "a1b7648399f18e709507bc07c59d0d34f08f39cb", "release": "v0.0.6"},
+    {"repo": "Kong/ngx_wasm_module", "commit": "3bed27836bb402143c6cbde17994b1d11a1084bc"},
+    {"repo": "proxy-wasm/spec", "commit": "bf6919b429b2710dba581110a30a4639aa69fcda"},
+    {"repo": "AssemblyScript/assemblyscript", "release": "v0.27.32"},
+    {"repo": "bytecodealliance/wasmtime", "release": "v50.0.0"}
+  ],
+  "npm": {"@kong/proxy-wasm-sdk": "0.0.6", "assemblyscript": "0.27.32"},
+  "note": "SDK/compiler pins are build baselines; host pins describe the tested integration. The spec commit is a monitoring observation, not a claim of implementing every feature. Changes require human review, never automatic merging."
+}

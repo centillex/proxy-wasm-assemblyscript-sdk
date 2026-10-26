@@ -1,0 +1,29 @@
+name: Upstream maintenance watch
+on:
+  schedule:
+    - cron: '19 3 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  monitor:
+    if: github.repository == 'centillex/proxy-wasm-assemblyscript-sdk'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+      - run: node scripts/monitor-upstream.mjs --issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: upstream-observations
+          path: build/upstream-observations.json
+          retention-days: 90
+          if-no-files-found: error
