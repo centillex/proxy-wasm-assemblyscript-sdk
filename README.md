@@ -4,18 +4,22 @@
 
 `@centillex/proxy-wasm-sdk` is a maintained downstream fork of
 [Kong's AssemblyScript SDK](https://github.com/Kong/proxy-wasm-assemblyscript-sdk),
-starting at **v0.0.6 / a1b7648399f18e709507bc07c59d0d34f08f39cb**. Kong's SDK is
-itself derived from Solo.io's proxy-runtime. Original attribution and Apache-2.0
-licensing are retained; see [NOTICE](NOTICE) and [UPSTREAM.json](UPSTREAM.json).
+itself derived from Solo.io's proxy-runtime. This fork evolves as reviewed code
+lands. Original attribution and Apache-2.0 licensing are retained; see
+[NOTICE](NOTICE) and [UPSTREAM.json](UPSTREAM.json) for its provenance.
 
-The first preview is **0.1.0-alpha.1**, intended for npm's **`next`** tag, not
-`latest`. Source/packed previews and npm publication are separate: npm publishing
-requires a maintainer's registry access and the native release gate below.
-Do not assume that a GitHub tag means the npm package has been published.
+Preview packages use npm's **`next`** channel. See the
+[releases](https://github.com/centillex/proxy-wasm-assemblyscript-sdk/releases) and
+[CHANGELOG.md](CHANGELOG.md) for release-specific details. Source/packed previews
+and npm publication are separate: npm publishing requires a maintainer's registry
+access and the native release gate below. Do not assume that a GitHub tag means
+the npm package has been published.
 
-## Supported starting point
+## Supported integration
 
-- AssemblyScript **0.27.32**, **incremental** runtime, Proxy-Wasm ABI **0.2.1**.
+- AssemblyScript with the **incremental** runtime and Proxy-Wasm ABI callbacks.
+  The current package metadata declares the compiler requirements; the
+  [compatibility matrix](docs/compatibility.md) records tested combinations.
 - Public source imports `@centillex/proxy-wasm-sdk` and
   `@centillex/proxy-wasm-sdk/proxy` work from the actual packed npm artifact.
 - Primary integration: NGINX `ngx_wasm_module` with Wasmtime, tested using
@@ -30,18 +34,30 @@ JavaScript runtime package**. Arbitrary npm libraries do not become guest-compat
 ## Build a consumer
 
 While npm publication is pending, install the packed preview from a local build
-or the GitHub prerelease asset. Build the package with Node 22.22.0 and npm 11:
+or a GitHub prerelease asset. Use the toolchain requirements declared by the
+current checkout:
 
 ```sh
 npm ci --ignore-scripts
 npm test
-# In a separate consumer project, with the path to this checkout's tarball:
-npm install --save-exact /path/to/build/centillex-proxy-wasm-sdk-0.1.0-alpha.1.tgz
-npm install --save-dev --save-exact assemblyscript@0.27.32
 ```
 
-After registry publication, the equivalent pinned dependency is
-`@centillex/proxy-wasm-sdk@0.1.0-alpha.1`. Commit the consumer's lockfile as well.
+In a separate consumer project, install the generated or downloaded tarball
+(replace the example path with the actual artifact path):
+
+```sh
+npm install /path/to/sdk-preview.tgz
+```
+
+After registry publication, install from the preview channel instead:
+
+```sh
+npm install @centillex/proxy-wasm-sdk@next
+```
+
+npm installs the SDK's declared AssemblyScript peer dependency. Use that compiler
+when building your guest; check the compatibility documentation before upgrading
+it independently.
 
 In `assembly/index.ts`:
 
@@ -107,6 +123,7 @@ See [MAINTAINING.md](MAINTAINING.md), [SECURITY.md](SECURITY.md), and
 AssemblyScript, Wasmtime and public repository advisories. Dependabot proposes
 npm/GitHub Actions updates; nothing is automatically merged or published.
 
-Changing an SDK or compiler can change guest bytes. A hash-pinned deployment
-must explicitly approve and qualify the rebuilt guest. Creating this fork does
-**not** upgrade Nautiq's running demo or its approved module hash.
+Changing an SDK or compiler can change guest bytes. Deployments that approve
+guest artifacts by hash must explicitly approve and qualify the rebuilt guest.
+Updates to this repository do **not** automatically upgrade Nautiq's running demo
+or its approved module hash.
